@@ -1,0 +1,71 @@
+import plotly.graph_objects as go
+import pandas as pd
+from datetime import datetime, timedelta
+import numpy as np
+
+# डेटा जेनरेट करने के लिए फंक्शन
+def generate_data(start_date, num_cycles, cycle_length):
+    dates = []
+    open_prices = []
+    high_prices = []
+    low_prices = []
+    close_prices = []
+    
+    for cycle in range(num_cycles):
+        # अपट्रेंड डेटा
+        for day in range(cycle_length):
+            date = start_date + timedelta(days=cycle * (cycle_length * 2) + day)
+            open_price = np.random.uniform(100 + (cycle * 10), 105 + (cycle * 10))
+            close_price = open_price + np.random.uniform(0, 5)
+            high_price = close_price + np.random.uniform(0, 2)
+            low_price = open_price - np.random.uniform(0, 2)
+            dates.append(date)
+            open_prices.append(open_price)
+            high_prices.append(high_price)
+            low_prices.append(low_price)
+            close_prices.append(close_price)
+        
+        # डाउनट्रेंड डेटा
+        for day in range(cycle_length):
+            date = start_date + timedelta(days=cycle * (cycle_length * 2) + cycle_length + day)
+            open_price = np.random.uniform(105 + (cycle * 10), 110 + (cycle * 10))
+            close_price = open_price - np.random.uniform(0, 5)
+            high_price = open_price + np.random.uniform(0, 2)
+            low_price = close_price - np.random.uniform(0, 2)
+            dates.append(date)
+            open_prices.append(open_price)
+            high_prices.append(high_price)
+            low_prices.append(low_price)
+            close_prices.append(close_price)
+    
+    data = {
+        'Date': dates,
+        'Open': open_prices,
+        'High': high_prices,
+        'Low': low_prices,
+        'Close': close_prices
+    }
+    return pd.DataFrame(data)
+
+# डेटा जेनरेट करें
+df = generate_data(datetime.now(), 5, 5) # 5 अपट्रेंड और डाउनट्रेंड साइकल्स, प्रत्येक 5 दिनों का
+
+# कैंडलस्टिक चार्ट बनाएं
+fig = go.Figure(data=[go.Candlestick(
+    x=df['Date'],
+    open=df['Open'],
+    high=df['High'],
+    low=df['Low'],
+    close=df['Close'],
+    increasing_line_color='green', decreasing_line_color='red'
+)])
+
+# चार्ट को कस्टमाइज़ करें
+fig.update_layout(
+    title='Alternating Uptrend and Downtrend Candlestick Chart',
+    yaxis_title='Price',
+    xaxis_title='Date'
+)
+
+# चार्ट को HTML फाइल में सेव करें
+fig.write_html('your_chart.html')
